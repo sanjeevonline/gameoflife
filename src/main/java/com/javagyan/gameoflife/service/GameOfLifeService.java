@@ -1,13 +1,8 @@
 package com.javagyan.gameoflife.service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import com.javagyan.gameoflife.model.Cell;
-import com.javagyan.gameoflife.model.CellIndex;
-import com.javagyan.gameoflife.model.State;
 import com.javagyan.gameoflife.model.Universe;
 import com.javagyan.gameoflife.util.UniverseUtil;
 
@@ -183,26 +178,6 @@ public class GameOfLifeService {
     }
 
     /**
-     * Helper method to simplify the logic for finding neighboring cells and to avoid multiple lookup into the
-     * collections of cells in the Universe.
-     * @param neighbourCellIndex
-     * @return
-     */
-    @Deprecated
-    private static int getAliveNeighbourCount(final Set<CellIndex> neighbourCellIndex, final Universe universe) {
-        int count = 0;
-        for (final Cell cell : universe.getCells()) {
-            for (final CellIndex cellIndex : neighbourCellIndex) {
-                if ((cell.getRow() == cellIndex.getRowIndex()) && (cell.getColumn() == cellIndex.getColIndex())
-                        && State.ALIVE.equals(cell.getState())) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
-    /**
      * Business method that returns a collection of progressive versions of Universe. To avoid infinite loop scenario,
      * only first 10 generations of the universe are kept for now in case Universe keeps evolving.
      * @param seed
@@ -215,71 +190,11 @@ public class GameOfLifeService {
     }
 
     /**
-     * Core logic of the Game of life. - Before calculating for new generation check if the Universe needs to expand its
-     * area - apply business rules 1 Any live cell with fewer than two live neighbours dies, as if by loneliness. 2 Any
-     * live cell with more than three live neighbours dies, as if by overcrowding. 3 Any live cell with two or three
-     * live neighbours lives, unchanged, to the next generation. 4 Any dead cell with exactly three live neighbours
-     * comes to life.
-     * @param universe
-     * @return Universe
-     */
-    @Deprecated
-    private final Universe generateNextGeneration(final Universe universe) {
-        final List<Cell> nextGeneration = new ArrayList<Cell>();
-        for (final Cell cell : universe.getCells()) {
-            final Set<CellIndex> neighbourCellIndex = new HashSet<CellIndex>();
-            if (cell.getColumn() > 0) { // has a neighbor on left side in the same row
-                neighbourCellIndex.add(new CellIndex(cell.getRow(), cell.getColumn() - 1));
-            }
-            if (cell.getColumn() < (universe.getColumns() - 1)) {// has a neighbor on right side in the same row
-                neighbourCellIndex.add(new CellIndex(cell.getRow(), cell.getColumn() + 1));
-            }
-            if (cell.getRow() > 0) { // has a neighbor above in the same column
-                neighbourCellIndex.add(new CellIndex(cell.getRow() - 1, cell.getColumn()));
-            }
-            if (cell.getRow() < (universe.getRows() - 1)) {// has a neighbor below in the same column
-                neighbourCellIndex.add(new CellIndex(cell.getRow() + 1, cell.getColumn()));
-            }
-            if ((cell.getRow() > 0) && (cell.getColumn() > 0)) { // has a neighbor at diagonal Left Above
-                neighbourCellIndex.add(new CellIndex(cell.getRow() - 1, cell.getColumn() - 1));
-            }
-            if ((cell.getRow() > 0) && (cell.getColumn() < (universe.getColumns() - 1))) { // has a neighbor at diagonal
-                                                                                           // Right above
-                neighbourCellIndex.add(new CellIndex(cell.getRow() - 1, cell.getColumn() + 1));
-            }
-            if ((cell.getRow() < (universe.getRows() - 1)) && (cell.getColumn() > 0)) { // has a neighbor at diagonal
-                                                                                        // Left Below
-                neighbourCellIndex.add(new CellIndex(cell.getRow() + 1, cell.getColumn() - 1));
-            }
-            if ((cell.getRow() < (universe.getRows() - 1)) && (cell.getColumn() < (universe.getColumns() - 1))) {
-                // has a neighbor at diagonal Right Below
-                neighbourCellIndex.add(new CellIndex(cell.getRow() + 1, cell.getColumn() + 1));
-            }
-            final int aliveNeighbourCount = getAliveNeighbourCount(neighbourCellIndex, universe);
-            if (State.ALIVE.equals(cell.getState())) {
-                if ((aliveNeighbourCount < UniverseUtil.LONELILESS_LIMIT)
-                        || (aliveNeighbourCount > UniverseUtil.OVER_CROWDING_LIMIT)) {
-                    nextGeneration.add(new Cell(cell.getRow(), cell.getColumn(), State.DEAD));
-                } else {
-                    nextGeneration.add(new Cell(cell.getRow(), cell.getColumn(), State.ALIVE));
-                }
-            } else {
-                if (aliveNeighbourCount == UniverseUtil.BRING_TO_LIFE_COUNT) {
-                    nextGeneration.add(new Cell(cell.getRow(), cell.getColumn(), State.ALIVE));
-                } else {
-                    nextGeneration.add(new Cell(cell.getRow(), cell.getColumn(), State.DEAD));
-                }
-            }
-        }
-        return UniverseUtil.createUniverse(universe.getRows(), universe.getColumns(), nextGeneration);
-    }
-
-    /**
      * Faster version of the logic to generate next generation. It deals with Array. Core logic of the Game of life. -
      * Before calculating for new generation check if the Universe needs to expand its area - apply business rules 1 Any
-     * live cell with fewer than two live neighbours dies, as if by loneliness. 2 Any live cell with more than three
-     * live neighbours dies, as if by overcrowding. 3 Any live cell with two or three live neighbours lives, unchanged,
-     * to the next generation. 4 Any dead cell with exactly three live neighbours comes to life.
+     * live cell with fewer than two live neighbors dies, as if by loneliness. 2 Any live cell with more than three live
+     * neighbors dies, as if by overcrowding. 3 Any live cell with two or three live neighbors lives, unchanged, to the
+     * next generation. 4 Any dead cell with exactly three live neighbors comes to life.
      * @param universe
      * @return Universe
      */
