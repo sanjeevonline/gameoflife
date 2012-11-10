@@ -198,7 +198,7 @@ public class GameOfLifeService {
      * @param universe
      * @return Universe
      */
-    private final Universe generateNextGenerationFaster(final Universe universe) {
+    private final Universe generateNextGeneration(final Universe universe) {
         final char[][] charArray = UniverseUtil.convertToArray(
                 universe.getRows(), universe.getColumns(), universe.getCells());
         final char[][] expandedArray = expandForNextGeneration(charArray); // expand boundaries for new Generations
@@ -266,7 +266,7 @@ public class GameOfLifeService {
      * @return List<Universe>
      */
     private List<Universe> play(final List<Universe> generations, final Universe genNext) {
-        final Universe uni = generateNextGenerationFaster(genNext);
+        final Universe uni = generateNextGeneration(genNext);
         for (final Universe universe : generations) {
             if ((universe.getAliveCells().size() == 0) || (generations.size() == UniverseUtil.GENERATIONS_LIMIT)) {
                 return generations;
